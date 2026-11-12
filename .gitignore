@@ -1,0 +1,30 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+
+# Local verification screenshots may contain customer or account details.
+verification/
+.verification-evidence/
+
+# Generated compiler metadata and local logs.
+*.tsbuildinfo
+*.log
+
+# Database exports, backups, and private credentials.
+*.dump
+*.bak
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local OS metadata.
+.DS_Store
+Thumbs.db
+
+# Illustrative dashboard mockup with non-production names and metrics.
+/Images/ChatGPT Image Oct 9, 2026, 05_06_21 PM.png
