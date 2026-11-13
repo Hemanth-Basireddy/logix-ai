@@ -62,3 +62,36 @@ No application source, database, or environment file was changed for this eviden
 ## Evidence scope
 
 This folder contains only the three new public-page screenshots and this index for W1. Existing image assets were left untouched. The screenshots do not establish that authenticated role dashboards, booking writes, or booking approvals work end to end.
+
+## Follow-up: authenticated evidence readiness (13 November 2026)
+
+No new screenshots were captured in this follow-up. The three previously published screenshots were not modified or removed.
+
+### Authentication and safe test access
+
+- Employee authentication accepts an employee ID and password and verifies an existing Argon2id hash. The project contains no seeded employee test-account instructions or safe development login; no employee password was guessed, reset, or reused.
+- The customer demo first-login path is enabled by the current `backend/.env` setting `CUSTOMER_PORTAL_MODE=demo`, for `CUSTOMER_PORTAL_COMPANY_ID=1`. `LOGIX_DB_MODE` and every `LOGIX_TEST_DB_*` variable are absent, so the normal application target is `DB_NAME=logistics_db`.
+- In demo mode, a historical customer may claim an exact matching record using the registered phone and customer name as the first password. The implementation persists a new Argon2id hash/account for that customer. That is a database write, so this login path was not used against `logistics_db`.
+- A read-only MySQL catalog check found no database named with the required `logix_customer_test_` prefix. No test connection, migration, seed, booking, account creation, or other write was attempted.
+- The customer integration runner requires a separately provisioned empty disposable database and an approved schema-only baseline. The repository's customer integration guide says the complete authoritative base DDL is not included. Its runner applies migrations 002, 003, and 004 and seeds/cleans its own synthetic customer workflow fixtures; it does not provide synthetic employee accounts for the role dashboard screenshots.
+
+### Dataset analysis availability
+
+No CSV, Excel workbook, Jupyter notebook, dataset-analysis output, or column-mapping artifact was found in the repository. No `w1_dataset_analysis.png` was created.
+
+### Test rerun and failure investigation
+
+The existing suites were rerun without code or test changes:
+
+| Check | Rerun result | Finding |
+|---|---|---|
+| Backend tests | **FAIL — 89 passed, 1 failed (90 total)** | The trip-creation test's mock supplies `{ route: 1 }`, but the current route-graph query requires origin hub, destination hub, and destination city fields. The mock therefore creates no valid route edge, and the backend correctly rejects the trip. This is a stale fixture, not evidence that route validation should be weakened. |
+| Frontend tests | **FAIL — 8 passed, 1 failed (9 total)** | The empty-summary assertion forbids the substring `live vehicle locations`; the UI intentionally states `not live vehicle locations`. This is an overbroad assertion against the truthful disclaimer; the disclaimer was preserved. |
+
+Neither failure was changed in this evidence task.
+
+### Exact prerequisites for the remaining screenshots
+
+To capture customer booking and role dashboards safely, provision a separate MySQL database named with `logix_customer_test_...`, using the authoritative schema-only DDL for this application version and a database user restricted to that test database. Set all required `LOGIX_TEST_DB_*` variables and `LOGIX_DB_MODE=test` in the test process; do not repoint `backend/.env`. Provide synthetic test-only customer and employee accounts (Company Admin, Operations Manager, Hub Manager, and Logistics Executive), with appropriate company/hub/task fixtures and passwords created through the normal Argon2id process. The customer workflow can then be submitted and approved only in that isolated database. A genuine dataset-analysis screenshot additionally requires the project's actual analysis notebook/output or approved dataset mapping artifact.
+
+Until those prerequisites exist, booking validation/submission, booking reference creation, Operations approval/rejection, and authenticated dashboard screenshots remain **blocked**, and the operational `logistics_db` remains unchanged.
